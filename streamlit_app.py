@@ -1,38 +1,57 @@
-from collections import namedtuple
-import altair as alt
-import math
-import pandas as pd
 import streamlit as st
 
-"""
-# Welcome to Our Program
+st.title('Fly Species Identification Software')
+st.warning('This software can identify CN, CM, CR, LC, HL, MD and PD')
 
-Edit `/streamlit_app.py` to customize this app to your heart's desire :heart:
+st.subheader('Please input your sample morphological character' )
 
-If you have any questions, checkout our [documentation](https://docs.streamlit.io) and [community
-forums](https://discuss.streamlit.io).
+sp = ''
 
-In the meantime, below is an example of what you can do with just a few lines of code:
-"""
+gena = st.radio( 'What is gena color?',('orange', 'white'))
+body = st.radio('What is body color?', ('cuprous', 'grey','metalic green/blue'))
+st.subheader('Please input the raw distance of your sample in micron unit')
+st.image('https://drive.google.com/uc?id=16GofHejJvp7PULUZGMqrOaxkzSBOapuh')
+Da = st.number_input('Enter distance a', min_value=100)
+Db = st.number_input('Enter distance b', min_value=100)
+Dc = st.number_input('Enter distance c', min_value=100)
+Dd = st.number_input('Enter distance d', min_value=100)
+De = st.number_input('Enter distance e', min_value=100)
+Dg = st.number_input('Enter distance g', min_value=100)
 
+raw_sum = Da+Db+Dc+Dd
+ratio = 5000/raw_sum
+Nda = Da*ratio
+Ndb = Db*ratio
+Ndc = Dc*ratio
+Ndd = Dd*ratio
+Nde = De*ratio
+Ndg = Dg*ratio
 
-with st.echo(code_location='below'):
-    total_points = st.slider("Number of points in spiral", 1, 5000, 2000)
-    num_turns = st.slider("Number of turns in spiral", 1, 100, 9)
+if body == 'cuprous':
+     sp = 'LC'
+elif body == 'grey':
+     if Ndb > 738.44:
+          sp = 'PD'
+     else:
+          sp = 'MD'
+else:
+     if gena == 'orange':
+          sp = 'CM'
+     else:
+          if Nde > 1386.86:
+               if Nda > 1409.28:
+                    sp ='CR'
+               else:
+                    sp ='HL'
+          else:
+               if Ndg > 455.16:
+                    sp = 'HL'
+               else:
+                    if Nda >1564:
+                         sp ='CR'
+                    else:
+                         sp = 'CN'
 
-    Point = namedtuple('Point', 'x y')
-    data = []
-
-    points_per_turn = total_points / num_turns
-
-    for curr_point_num in range(total_points):
-        curr_turn, i = divmod(curr_point_num, points_per_turn)
-        angle = (curr_turn + 1) * 2 * math.pi * i / points_per_turn
-        radius = curr_point_num / total_points
-        x = radius * math.cos(angle)
-        y = radius * math.sin(angle)
-        data.append(Point(x, y))
-
-    st.altair_chart(alt.Chart(pd.DataFrame(data), height=500, width=500)
-        .mark_circle(color='#0068c9', opacity=0.5)
-        .encode(x='x:Q', y='y:Q'))
+if st.button('Identity'):
+     st.write('Your sample is ...')
+     st.subheader(sp)
